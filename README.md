@@ -8,19 +8,19 @@ sequenceDiagram
     participant C3 as Client 3
     C1->>S: StartGame
     par
-        S->>C1: FirstTwoCards
+        S->>C1: FirstTwoCards for the 1st player
     and
-        S->>C2: FirstTwoCards
+        S->>C2: FirstTwoCards for the 2nd player
     and
-        S->>C3: FirstTwoCards
+        S->>C3: FirstTwoCards for the 3rd player
     end
-    S->>S: Wait for responses from all clients
+    Note over S: Wait for responses from all clients
     par
-        C1-->>S: SeenCards
-    and
         C2-->>S: SeenCards
     and
         C3-->>S: SeenCards
+    and
+        C1-->>S: SeenCards
     end
     S->>S: Randomly select a client to start moving
     S->>C2: YourTurn
