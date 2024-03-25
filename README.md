@@ -6,7 +6,7 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    Note over S, C1, C2, C3: ...
+    Note over S,C3: ...
     C1->>S: StartGame
     par
         S->>C1: FirstTwoCards(n1, n2) for the 1st player
@@ -39,7 +39,7 @@ sequenceDiagram
     and
         C1-->>S: Ack
     end
-    Note over S, C1, C2, C3: Proceed to the first turn
+    Note over S,C3: Proceed to the first turn
 ```
 
 ```mermaid
@@ -48,7 +48,7 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    Note over S, C1, C2, C3: ...
+    Note over S,C3: ...
     C2->>S: TakeCardFromHeap
     par
         S->>C1: HeapCardTaken(playerIndex)
@@ -79,5 +79,5 @@ sequenceDiagram
     and
         C1-->>S: Ack
     end
-    Note over S, C1, C2, C3: Proceed to the next turn
+    Note over S,C3: Proceed to the next turn
 ```
