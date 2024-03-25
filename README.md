@@ -1,4 +1,4 @@
-# another
+### Round start phase
 
 Start a new round:
 ```mermaid
@@ -40,6 +40,8 @@ sequenceDiagram
     S->>C2: FirstTurn(playerIndex)
     Note over S,C3: Proceed to the first turn
 ```
+
+### Selection phase
 
 Pick card from heap:
 ```mermaid
@@ -87,6 +89,8 @@ sequenceDiagram
     S->>C1: Card(value)
     Note over S,C3: Proceed to the action phase
 ```
+
+### Action phase
 
 Exchange the picked card with a card in player's hand:
 ```mermaid
