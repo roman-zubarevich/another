@@ -8,12 +8,13 @@ sequenceDiagram
     participant C3 as Client 3
     Note over S,C3: ...
     C1->>S: StartGame
+    S->>S: Prepare initial state of the round, randomly pick players' cards
     par
-        S->>C1: FirstTwoCards(n1, n2) for the 1st player
+        S->>C1: FirstTwoCards(n1_1, n1_2)
     and
-        S->>C2: FirstTwoCards(n1, n2) for the 2nd player
+        S->>C2: FirstTwoCards(n2_1, n2_2)
     and
-        S->>C3: FirstTwoCards(n1, n2) for the 3rd player
+        S->>C3: FirstTwoCards(n3_1, n3_2)
     end
     Note over S: Wait for ack from all clients
     par
@@ -23,7 +24,7 @@ sequenceDiagram
     and
         C1-->>S: Ack
     end
-    S->>S: Randomly select a player to start moving
+    S->>S: Randomly select a player (playerIndex) to start moving
     par
         S->>C1: NextTurn(playerIndex)
     and
@@ -55,12 +56,13 @@ sequenceDiagram
     and
         S->>C3: HeapCardTaken(playerIndex)
     end
-    Note over S: Wait for ack from all clients except active player
+    Note over S: Wait for ack from all clients except active player (playerIndex)
     par
         C3->>S: Ack
     and
         C2->>S: Ack
     end
+    S->>S: Randomly select a card (n) from the heap
     S->>C1: Card(n)
     C1->>S: ExchangeCard(handCardIndex)
     par
