@@ -67,6 +67,7 @@ sequenceDiagram
 
 Pick topmost discarded card:
 ```mermaid
+sequenceDiagram
     participant S as Server
     participant C1 as Client 1
     participant C2 as Client 2
@@ -89,6 +90,7 @@ Pick topmost discarded card:
 
 Exchange the picked card with a card in player's hand:
 ```mermaid
+sequenceDiagram
     participant S as Server
     participant C1 as Client 1
     participant C2 as Client 2
