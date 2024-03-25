@@ -49,9 +49,9 @@ sequenceDiagram
     participant C2 as Client 2
     participant C3 as Client 3
     Note over S,C3: ...
-    C2->>S: TakeCardFromHeap
+    C1->>S: TakeCardFromHeap
     par
-        S->>C1: HeapCardTaken(playerIndex)
+        S->>C2: HeapCardTaken(playerIndex)
     and
         S->>C3: HeapCardTaken(playerIndex)
     end
@@ -59,17 +59,17 @@ sequenceDiagram
     par
         C3->>S: Ack
     and
-        C1->>S: Ack
+        C2->>S: Ack
     end
-    S->>C2: Card(n)
-    C2->>S: ExchangeCard(handCardIndex)
+    S->>C1: Card(n)
+    C1->>S: ExchangeCard(handCardIndex)
     par
         S->>C1: CardExchanged(playerIndex, handCardIndex)
     and
         S->>C2: CardExchanged(playerIndex, handCardIndex)
+        Note over C2: Based on playerIndex, the client identifies itself as the next player
     and
         S->>C3: CardExchanged(playerIndex, handCardIndex)
-        Note over C3: Based on playerIndex, the client identifies itself as the next player
     end
     Note over S: Wait for ack from all clients
     par
