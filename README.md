@@ -41,6 +41,7 @@ sequenceDiagram
     Note over S,C3: Proceed to the first turn (phase B)
 ```
 
+
 ### Phase B (selection, identity testing, or stopping)
 
 Pick card from heap:
@@ -67,7 +68,7 @@ sequenceDiagram
     Note over S,C3: Proceed to phase C
 ```
 
-Pick topmost discarded card (for exchange):
+Pick topmost discarded card and replace a card in hand by it:
 ```mermaid
 sequenceDiagram
     participant S as Server
@@ -87,7 +88,22 @@ sequenceDiagram
         C2->>S: Ack
     end
     S->>C1: Card(value)
-    Note over S,C3: Proceed to the phase C
+    C1->>S: ReplaceCard(handCardIndex)
+    par
+        S->>C1: CardReplaced(playerIndex, handCardIndex, discardedValue)
+    and
+        S->>C3: CardReplaced(playerIndex, handCardIndex, discardedValue)
+    end
+    Note over S: Wait for ack from all notified clients
+    par
+        C3-->>S: Ack
+    and
+        C1-->>S: Ack
+    end
+    S->>S: Update 1st player's hand and discarded card (here??)
+    S->>C2: CardReplaced(playerIndex, handCardIndex, discardedValue)
+    Note over S,C3: All clients recognize Client 2 as the next player
+    Note over S,C3: Proceed to the next turn (phase B)
 ```
 
 Claim to have two or more identical cards and succeed:
@@ -139,6 +155,32 @@ sequenceDiagram
     Note over S,C3: Proceed to the next turn (phase B)
 ```
 
+Stop the round:
+```mermaid
+sequenceDiagram
+    participant S as Server
+    participant C1 as Client 1
+    participant C2 as Client 2
+    participant C3 as Client 3
+    C1->>S: StopRound
+    par
+        S->>C1: Stopping(playerIndex)
+    and
+        S->>C3: Stopping(playerIndex)
+    end
+    Note over S: Wait for ack from all notified clients
+    par
+        C3->>S: Ack
+    and
+        C1->>S: Ack
+    end
+    S->>S: Initiate stop counter
+    S->>C2: Stopping(playerIndex)
+    Note over S,C3: All clients recognize Client 2 as the next player
+    Note over S,C3: Proceed to the next turn (phase B)
+```
+
+
 ### Phase C (action)
 
 Exchange the picked card with a card in player's hand:
@@ -148,11 +190,11 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C1->>S: ExchangeCard(handCardIndex)
+    C1->>S: ReplaceCard(handCardIndex)
     par
-        S->>C1: CardExchanged(playerIndex, handCardIndex, discardedValue)
+        S->>C1: CardReplaced(playerIndex, handCardIndex, discardedValue)
     and
-        S->>C3: CardExchanged(playerIndex, handCardIndex, discardedValue)
+        S->>C3: CardReplaced(playerIndex, handCardIndex, discardedValue)
     end
     Note over S: Wait for ack from all notified clients
     par
@@ -161,18 +203,155 @@ sequenceDiagram
         C1-->>S: Ack
     end
     S->>S: Update 1st player's hand and discarded card (here??)
-    S->>C2: CardExchanged(playerIndex, handCardIndex, discardedValue)
+    S->>C2: CardReplaced(playerIndex, handCardIndex, discardedValue)
     Note over S,C3: All clients recognize Client 2 as the next player
     Note over S,C3: Proceed to the next turn (phase B)
 ```
 
 Discard the picked card (simple):
+```mermaid
+sequenceDiagram
+    participant S as Server
+    participant C1 as Client 1
+    participant C2 as Client 2
+    participant C3 as Client 3
+    C1->>S: Discard
+    S->>S: Check discarded card (appears to be plain)
+    par
+        S->>C1: Discarded(playerIndex, discardedValue)
+    and
+        S->>C3: Discarded(playerIndex, discardedValue)
+    end
+    Note over S: Wait for ack from all notified clients
+    par
+        C3-->>S: Ack
+    and
+        C1-->>S: Ack
+    end
+    S->>S: Update discarded card (here??)
+    S->>C2: Discarded(playerIndex, discardedValue)
+    Note over S,C3: All clients recognize Client 2 as the next player
+    Note over S,C3: Proceed to the next turn (phase B)
+```
 
 Discard the picked card (7 or 8):
+```mermaid
+sequenceDiagram
+    participant S as Server
+    participant C1 as Client 1
+    participant C2 as Client 2
+    participant C3 as Client 3
+    C1->>S: Discard
+    S->>S: Check discarded card (appears to be 7 or 8)
+    par
+        S->>C2: Discarded(playerIndex, discardedValue)
+    and
+        S->>C3: Discarded(playerIndex, discardedValue)
+    end
+    Note over S: Wait for ack from all notified clients
+    par
+        C3-->>S: Ack
+    and
+        C2-->>S: Ack
+    end
+    S->>S: Update discarded card (here??)
+    S->>C1: Discarded(playerIndex, discardedValue)
+    C1->>S: PeekOwnCard(handCardIndex)
+    par
+        S->>C1: Card(value)
+    and
+        S->>C3: OwnCardPeeked(playerIndex, handCardIndex)
+    end
+    Note over S: Wait for ack from all notified clients
+    par
+        C3-->>S: Ack
+    and
+        C1-->>S: Ack
+    end
+    S->>C2: OwnCardPeeked(playerIndex, handCardIndex)
+    Note over S,C3: All clients recognize Client 2 as the next player
+    Note over S,C3: Proceed to the next turn (phase B)
+```
 
 Discard the picked card (9 or 10):
+```mermaid
+sequenceDiagram
+    participant S as Server
+    participant C1 as Client 1
+    participant C2 as Client 2
+    participant C3 as Client 3
+    C1->>S: Discard
+    S->>S: Check discarded card (appears to be 9 or 10)
+    par
+        S->>C2: Discarded(playerIndex, discardedValue)
+    and
+        S->>C3: Discarded(playerIndex, discardedValue)
+    end
+    Note over S: Wait for ack from all notified clients
+    par
+        C3-->>S: Ack
+    and
+        C2-->>S: Ack
+    end
+    S->>S: Update discarded card (here??)
+    S->>C1: Discarded(playerIndex, discardedValue)
+    C1->>S: PeekCard(anotherPlayerIndex, handCardIndex)
+    par
+        S->>C1: Card(value)
+    and
+        S->>C3: CardPeeked(playerIndex, anotherPlayerIndex, handCardIndex)
+    end
+    Note over S: Wait for ack from all notified clients
+    par
+        C3-->>S: Ack
+    and
+        C1-->>S: Ack
+    end
+    S->>C2: CardPeeked(playerIndex, anotherPlayerIndex, handCardIndex)
+    Note over S,C3: All clients recognize Client 2 as the next player
+    Note over S,C3: Proceed to the next turn (phase B)
+```
 
 Discard the picked card (11 or 12):
+```mermaid
+sequenceDiagram
+    participant S as Server
+    participant C1 as Client 1
+    participant C2 as Client 2
+    participant C3 as Client 3
+    C1->>S: Discard
+    S->>S: Check discarded card (appears to be 11 or 12)
+    par
+        S->>C2: Discarded(playerIndex, discardedValue)
+    and
+        S->>C3: Discarded(playerIndex, discardedValue)
+    end
+    Note over S: Wait for ack from all notified clients
+    par
+        C3-->>S: Ack
+    and
+        C2-->>S: Ack
+    end
+    S->>S: Update discarded card (here??)
+    S->>C1: Discarded(playerIndex, discardedValue)
+    C1->>S: ExchangeCards(handCardIndex, anotherPlayerIndex, anotherPlayerHandCardIndex)
+    par
+        S->>C1: CardsExchanged(playerIndex, handCardIndex, anotherPlayerIndex, anotherPlayerHandCardIndex)
+    and
+        S->>C3: CardsExchanged(playerIndex, handCardIndex, anotherPlayerIndex, anotherPlayerHandCardIndex)
+    end
+    Note over S: Wait for ack from all notified clients
+    par
+        C3-->>S: Ack
+    and
+        C1-->>S: Ack
+    end
+    S->>S: Update players' hands after exchange (here??)
+    S->>C2: CardsExchanged(playerIndex, handCardIndex, anotherPlayerIndex, anotherPlayerHandCardIndex)
+    Note over S,C3: All clients recognize Client 2 as the next player
+    Note over S,C3: Proceed to the next turn (phase B)
+```
+
 
 ### Phase D (multiple cards replacement)
 
