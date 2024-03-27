@@ -1,3 +1,8 @@
+Design decisions:
+* Server should not send to a client any data that the corresponding player is not supposed to see. This will prevent cheating by means of a modified client.
+* Server should explicitly send all data relevant to a client, even if the data can be figured out on the client side. Rationale: avoid game logic duplication with a cost of slightly higher network traffic.
+
+
 ### Phase A (round start)
 
 Start a new round:
@@ -27,9 +32,9 @@ sequenceDiagram
     S->>S: Randomly select a player (playerIndex) to start moving
     Note over S: Notify other players first
     par
-        S->>C1: FirstTurn(playerIndex)
+        S->>C1: TurnStart(playerIndex)
     and
-        S->>C3: FirstTurn(playerIndex)
+        S->>C3: TurnStart(playerIndex)
     end
     Note over S: Wait for ack from all notified clients
     par
@@ -37,7 +42,7 @@ sequenceDiagram
     and
         C1-->>S: Ack
     end
-    S->>C2: FirstTurn(playerIndex)
+    S->>C2: TurnStart(playerIndex)
     Note over S,C3: Proceed to the first turn (phase B)
 ```
 
@@ -68,27 +73,14 @@ sequenceDiagram
     Note over S,C3: Proceed to phase C
 ```
 
-Pick topmost discarded card and replace a card in hand by it:
+Replace a card in hand by the topmost discarded card:
 ```mermaid
 sequenceDiagram
     participant S as Server
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C1->>S: TakeDiscardedCard
-    par
-        S->>C2: DiscardedCardTaken(playerIndex, value)
-    and
-        S->>C3: DiscardedCardTaken(playerIndex, value)
-    end
-    Note over S: Wait for ack from all notified clients
-    par
-        C3->>S: Ack
-    and
-        C2->>S: Ack
-    end
-    S->>C1: Card(value)
-    C1->>S: ReplaceCard(handCardIndex)
+    C1->>S: ReplaceCardByDiscarded(handCardIndex)
     par
         S->>C1: CardReplaced(playerIndex, handCardIndex, discardedValue)
     and
@@ -97,10 +89,10 @@ sequenceDiagram
     Note over S: Wait for ack from all notified clients
     par
         C3-->>S: Ack
+        S->>S: Update 1st player's hand, discarded card, and whose turn it is
     and
         C1-->>S: Ack
     end
-    S->>S: Update 1st player's hand and discarded card (here??)
     S->>C2: CardReplaced(playerIndex, handCardIndex, discardedValue)
     Note over S,C3: All clients recognize Client 2 as the next player
     Note over S,C3: Proceed to the next turn (phase B)
@@ -183,7 +175,7 @@ sequenceDiagram
 
 ### Phase C (action)
 
-Exchange the picked card with a card in player's hand:
+Replace a card in player's hand by the picked card:
 ```mermaid
 sequenceDiagram
     participant S as Server
