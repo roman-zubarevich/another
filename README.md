@@ -16,7 +16,7 @@ stateDiagram-v2
     showing_cards --> REPLACING_MULTIPLE_CARDS: all cards are identical
     showing_cards --> READY_FOR_TURN: some cards are different
     HEAP_CARD_TAKEN --> READY_FOR_TURN: ReplaceCard
-    HEAP_CARD_TAKEN --> discarding: Discard
+    HEAP_CARD_TAKEN --> discarded: Discard
     discarded --> READY_FOR_TURN: plain card
     discarded --> PEEKING_OWN_CARD: 7 or 8
     discarded --> PEEKING_ANOTHERS_CARD: 9 or 10
