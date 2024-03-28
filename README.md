@@ -5,7 +5,7 @@ Design decisions:
 
 
 ```mermaid
-stateDiagram-v2
+stateDiagram
     state discarded <<choice>>
     state showing_cards <<choice>>
     [*] --> STARTING
