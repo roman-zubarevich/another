@@ -4,6 +4,30 @@ Design decisions:
 * Every state change on server side happens in two steps: 1) pending notifications for all players are added to the state and persisted; 2) when all players confirm reception of the notifications, server persists the next state and clears all pending notifications. This allows to restore the state gracefully in case any connection gets broken or any participant goes down: it is guaranteed that every player sees every update (not just gets up-to-date state when reconnected).
 
 
+```mermaid
+stateDiagram-v2
+    state discarded <<choice>>
+    state showing_cards <<choice>>
+    [*] --> STARTING
+    STARTING --> READY_FOR_TURN
+    READY_FOR_TURN --> HEAP_CARD_TAKEN: TakeCardFromHeap
+    READY_FOR_TURN --> READY_FOR_TURN: ReplaceCardByDiscarded
+    READY_FOR_TURN --> showing_cards: ShowCards
+    showing_cards --> REPLACING_MULTIPLE_CARDS: all cards are identical
+    showing_cards --> READY_FOR_TURN: some cards are different
+    HEAP_CARD_TAKEN --> READY_FOR_TURN: ReplaceCard
+    HEAP_CARD_TAKEN --> discarding: Discard
+    discarded --> READY_FOR_TURN: plain card
+    discarded --> PEEKING_OWN_CARD: 7 or 8
+    discarded --> PEEKING_ANOTHERS_CARD: 9 or 10
+    discarded --> EXCHANGING_CARDS: 11 or 12
+    REPLACING_MULTIPLE_CARDS --> READY_FOR_TURN: TakeCardFromHeap, TakeDiscardedCard
+    PEEKING_OWN_CARD --> READY_FOR_TURN: PeekOwnCard
+    PEEKING_ANOTHERS_CARD --> READY_FOR_TURN: PeekCard
+    EXCHANGING_CARDS --> READY_FOR_TURN: ExchangeCards
+```
+
+
 ### Phase A (round start)
 
 Start a new round:
