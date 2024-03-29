@@ -93,7 +93,7 @@ sequenceDiagram
         S->>S: Clear notification 1
     end
     S->>C2: NextTurn(playerIndex)
-    C2-->S: Ack
+    C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to phase C
 ```
