@@ -140,9 +140,9 @@ sequenceDiagram
     C2->>S: ReplaceCardByDiscarded(cardIndex)
     S->>S: Save pending notifications
     par
-        S->>C1: CardReplaced(playerIndex, cardIndex, discardedValue)
+        S->>C1: CardReplacedByDiscarded(playerIndex, cardIndex, discardedValue)
     and
-        S->>C3: CardReplaced(playerIndex, cardIndex, discardedValue)
+        S->>C3: CardReplacedByDiscarded(playerIndex, cardIndex, discardedValue)
     end
     Note over S: Wait for all acks
     par
@@ -181,7 +181,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: ShowedIdenticalCards(discardedValue)
+    S->>C2: ShowedIdenticalCards(cardIndexes)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to phase E
@@ -257,9 +257,9 @@ sequenceDiagram
     C2->>S: ReplaceCard(cardIndex)
     S->>S: Save pending notifications
     par
-        S->>C1: CardReplaced(playerIndex, cardIndex, discardedValue)
+        S->>C1: CardReplacedFromDeck(playerIndex, cardIndex, discardedValue)
     and
-        S->>C3: CardReplaced(playerIndex, cardIndex, discardedValue)
+        S->>C3: CardReplacedFromDeck(playerIndex, cardIndex, discardedValue)
     end
     Note over S: Wait for all acks
     par
