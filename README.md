@@ -11,21 +11,21 @@ stateDiagram-v2
     state turn_done <<choice>>
     [*] --> STARTING
     STARTING --> READY_FOR_TURN
-    READY_FOR_TURN --> HEAP_CARD_TAKEN: TakeCardFromHeap
-    READY_FOR_TURN --> READY_FOR_TURN: ReplaceCardByDiscarded
+    READY_FOR_TURN --> DECK_CARD_TAKEN: TakeCardFromDeck
+    READY_FOR_TURN --> READY_FOR_TURN: ReplaceCardByDiscarded, StopRound
     READY_FOR_TURN --> showing_cards: ShowCards
     showing_cards --> REPLACING_MULTIPLE_CARDS: all cards are identical
     showing_cards --> READY_FOR_TURN: some cards are different
-    HEAP_CARD_TAKEN --> turn_done: ReplaceCard
-    HEAP_CARD_TAKEN --> discarded: Discard
+    DECK_CARD_TAKEN --> turn_done: ReplaceCard
+    DECK_CARD_TAKEN --> discarded: Discard
     discarded --> turn_done: plain card
     discarded --> PEEKING_OWN_CARD: 7 or 8
     discarded --> PEEKING_ANOTHERS_CARD: 9 or 10
     discarded --> EXCHANGING_CARDS: 11 or 12
     REPLACING_MULTIPLE_CARDS --> READY_FOR_TURN: TakeDiscardedCard
-    REPLACING_MULTIPLE_CARDS --> turn_done: TakeCardFromHeap
+    REPLACING_MULTIPLE_CARDS --> turn_done: TakeCardFromDeck
     PEEKING_OWN_CARD --> turn_done: PeekOwnCard
-    PEEKING_ANOTHERS_CARD --> turn_done: PeekCard
+    PEEKING_ANOTHERS_CARD --> turn_done: PeekAnothersCard
     EXCHANGING_CARDS --> turn_done: ExchangeCards
     turn_done --> READY_FOR_TURN: not last turn
     turn_done --> FINISHED: last turn
@@ -62,7 +62,7 @@ sequenceDiagram
         S->>S: Clear notification 3
     and
         C1-->>S: Ack
-        S->>S: Clear notification 1
+        S->>S: Clear notification 1 and update state
     end
     Note over S,C3: Proceed to the first turn initiation (phase B)
 ```
@@ -92,7 +92,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: NextTurn(playerIndex)
+    S->>C2: YourTurn
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to phase C
@@ -101,20 +101,20 @@ sequenceDiagram
 
 ### Phase C (selection, identity testing, or stopping)
 
-Pick card from heap:
+Pick card from deck:
 ```mermaid
 sequenceDiagram
     participant S as Server
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C2->>S: TakeCardFromHeap
-    S->>S: Pick a random card (value) from the heap
+    C2->>S: TakeCardFromDeck
+    S->>S: Pick a random card (value) from the deck
     S->>S: Save pending notifications
     par
-        S->>C1: HeapCardTaken(playerIndex)
+        S->>C1: DeckCardTaken(playerIndex)
     and
-        S->>C3: HeapCardTaken(playerIndex)
+        S->>C3: DeckCardTaken(playerIndex)
     end
     Note over S: Wait for all acks
     par
@@ -124,7 +124,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: Card(value)
+    S->>C2: TookDeckCard(value)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to phase D
@@ -137,12 +137,12 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C2->>S: ReplaceCardByDiscarded(handCardIndex)
+    C2->>S: ReplaceCardByDiscarded(cardIndex)
     S->>S: Save pending notifications
     par
-        S->>C1: CardReplaced(playerIndex, handCardIndex, discardedValue)
+        S->>C1: CardReplaced(playerIndex, cardIndex, discardedValue)
     and
-        S->>C3: CardReplaced(playerIndex, handCardIndex, discardedValue)
+        S->>C3: CardReplaced(playerIndex, cardIndex, discardedValue)
     end
     Note over S: Wait for all acks
     par
@@ -152,7 +152,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: CardReplaced(playerIndex, handCardIndex, discardedValue)
+    S->>C2: ReplacedCardByDiscarded(cardIndex, discardedValue)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to the next turn (phase B)
@@ -165,13 +165,13 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C2->>S: ShowCards(handCardIndexes)
+    C2->>S: ShowCards(cardIndexes)
     S->>S: Compare card values (all appear equal)
     S->>S: Save pending notifications
     par
-        S->>C1: CardsShown(playerIndex, handCardIndexes, values)
+        S->>C1: IdenticalCardsShown(playerIndex, cardIndexes, value)
     and
-        S->>C3: CardsShown(playerIndex, handCardIndexes, values)
+        S->>C3: IdenticalCardsShown(playerIndex, cardIndexes, value)
     end
     Note over S: Wait for all acks
     par
@@ -181,7 +181,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: CardsIdentical(discardedValue)
+    S->>C2: ShowedIdenticalCards(discardedValue)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to phase E
@@ -194,13 +194,13 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C2->>S: ShowCards(handCardIndexes)
+    C2->>S: ShowCards(cardIndexes)
     S->>S: Compare card values (some cards are different)
     S->>S: Save pending notifications
     par
-        S->>C1: CardsShown(playerIndex, handCardIndexes, values)
+        S->>C1: DifferentCardsShown(playerIndex, cardIndexes, values)
     and
-        S->>C3: CardsShown(playerIndex, handCardIndexes, values)
+        S->>C3: DifferentCardsShown(playerIndex, cardIndexes, values)
     end
     Note over S: Wait for all acks
     par
@@ -210,7 +210,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: CardsDifferent
+    S->>C2: ShowedDifferentCards(cardIndexes)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to the next turn (phase B)
@@ -226,9 +226,9 @@ sequenceDiagram
     C2->>S: StopRound
     S->>S: Save pending notifications
     par
-        S->>C1: Stopping(playerIndex)
+        S->>C1: StopInitiated(playerIndex)
     and
-        S->>C3: Stopping(playerIndex)
+        S->>C3: StopInitiated(playerIndex)
     end
     Note over S: Wait for all acks
     par
@@ -238,7 +238,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: Stopping(playerIndex)
+    S->>C2: InitiatedStop
     C2-->>S: Ack
     S->>S: Clear notification 2 and initiate stop counter
     Note over S,C3: Proceed to the next turn (phase B)
@@ -254,12 +254,12 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C2->>S: ReplaceCard(handCardIndex)
+    C2->>S: ReplaceCard(cardIndex)
     S->>S: Save pending notifications
     par
-        S->>C1: CardReplaced(playerIndex, handCardIndex, discardedValue)
+        S->>C1: CardReplaced(playerIndex, cardIndex, discardedValue)
     and
-        S->>C3: CardReplaced(playerIndex, handCardIndex, discardedValue)
+        S->>C3: CardReplaced(playerIndex, cardIndex, discardedValue)
     end
     Note over S: Wait for all acks
     par
@@ -269,7 +269,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: CardReplaced(playerIndex, handCardIndex, discardedValue)
+    S->>C2: ReplacedCardFromDeck(cardIndex, discardedValue)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to the next turn (phase B)
@@ -286,9 +286,9 @@ sequenceDiagram
     S->>S: Check discarded card (appears to be plain)
     S->>S: Save pending notifications
     par
-        S->>C1: Discarded(playerIndex, discardedValue)
+        S->>C1: CardDiscarded(playerIndex, discardedValue)
     and
-        S->>C3: Discarded(playerIndex, discardedValue)
+        S->>C3: CardDiscarded(playerIndex, discardedValue)
     end
     Note over S: Wait for all acks
     par
@@ -298,7 +298,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: Discarded(playerIndex, discardedValue)
+    S->>C2: DiscardedCard(discardedValue)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to the next turn (phase B)
@@ -315,9 +315,9 @@ sequenceDiagram
     S->>S: Check discarded card (appears to be 7 or 8)
     S->>S: Save pending notifications
     par
-        S->>C1: Discarded(playerIndex, discardedValue)
+        S->>C1: CardDiscarded(playerIndex, discardedValue)
     and
-        S->>C3: Discarded(playerIndex, discardedValue)
+        S->>C3: CardDiscarded(playerIndex, discardedValue)
     end
     Note over S: Wait for all acks
     par
@@ -327,15 +327,15 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: Discarded(playerIndex, discardedValue)
+    S->>C2: PeekingOwnCard(discardedValue)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
-    C2->>S: PeekOwnCard(handCardIndex)
+    C2->>S: PeekOwnCard(cardIndex)
     S->>S: Save pending notifications
     par
-        S->>C1: OwnCardPeeked(playerIndex, handCardIndex)
+        S->>C1: OwnCardPeeked(playerIndex, cardIndex)
     and
-        S->>C3: OwnCardPeeked(playerIndex, handCardIndex)
+        S->>C3: OwnCardPeeked(playerIndex, cardIndex)
     end
     Note over S: Wait for all acks
     par
@@ -345,7 +345,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: Card(value)
+    S->>C2: OwnCard(cardIndex, value)
     C2-->>S: Ack
     S->>S: Clear notification 2
     Note over S,C3: Proceed to the next turn (phase B)
@@ -362,9 +362,9 @@ sequenceDiagram
     S->>S: Check discarded card (appears to be 9 or 10)
     S->>S: Save pending notifications
     par
-        S->>C1: Discarded(playerIndex, discardedValue)
+        S->>C1: CardDiscarded(playerIndex, discardedValue)
     and
-        S->>C3: Discarded(playerIndex, discardedValue)
+        S->>C3: CardDiscarded(playerIndex, discardedValue)
     end
     Note over S: Wait for all acks
     par
@@ -374,15 +374,15 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: Discarded(playerIndex, discardedValue)
+    S->>C2: PeekingAnothersCard(discardedValue)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
-    C2->>S: PeekCard(anotherPlayerIndex, handCardIndex)
+    C2->>S: PeekAnothersCard(anotherPlayerIndex, cardIndex)
     S->>S: Save pending notifications
     par
-        S->>C1: CardPeeked(playerIndex, anotherPlayerIndex, handCardIndex)
+        S->>C1: AnothersCardPeeked(playerIndex, anotherPlayerIndex, cardIndex)
     and
-        S->>C3: CardPeeked(playerIndex, anotherPlayerIndex, handCardIndex)
+        S->>C3: AnothersCardPeeked(playerIndex, anotherPlayerIndex, cardIndex)
     end
     Note over S: Wait for all acks
     par
@@ -392,7 +392,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: Card(value)
+    S->>C2: AnothersCard(anotherPlayerIndex, cardIndex, value)
     C2-->>S: Ack
     S->>S: Clear notification 2
     Note over S,C3: Proceed to the next turn (phase B)
@@ -409,9 +409,9 @@ sequenceDiagram
     S->>S: Check discarded card (appears to be 11 or 12)
     S->>S: Save pending notifications
     par
-        S->>C1: Discarded(playerIndex, discardedValue)
+        S->>C1: CardDiscarded(playerIndex, discardedValue)
     and
-        S->>C3: Discarded(playerIndex, discardedValue)
+        S->>C3: CardDiscarded(playerIndex, discardedValue)
     end
     Note over S: Wait for all acks
     par
@@ -421,15 +421,15 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: Discarded(playerIndex, discardedValue)
+    S->>C2: ExchangingCards(discardedValue)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
-    C2->>S: ExchangeCards(handCardIndex, anotherPlayerIndex, anotherPlayerHandCardIndex)
+    C2->>S: ExchangeCards(cardIndex, anotherPlayerIndex, anotherPlayerCardIndex)
     S->>S: Save pending notifications
     par
-        S->>C1: CardsExchanged(playerIndex, handCardIndex, anotherPlayerIndex, anotherPlayerHandCardIndex)
+        S->>C1: CardsExchanged(playerIndex, cardIndex, anotherPlayerIndex, anotherPlayerCardIndex)
     and
-        S->>C3: CardsExchanged(playerIndex, handCardIndex, anotherPlayerIndex, anotherPlayerHandCardIndex)
+        S->>C3: CardsExchanged(playerIndex, cardIndex, anotherPlayerIndex, anotherPlayerCardIndex)
     end
     Note over S: Wait for all acks
     par
@@ -439,7 +439,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: CardsExchanged(playerIndex, handCardIndex, anotherPlayerIndex, anotherPlayerHandCardIndex)
+    S->>C2: ExchangedCards(cardIndex, anotherPlayerIndex, anotherPlayerCardIndex)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to the next turn (phase B)
@@ -448,20 +448,20 @@ sequenceDiagram
 
 ### Phase E (multiple cards replacement)
 
-Replace multiple cards with a card from heap:
+Replace multiple cards with a card from deck:
 ```mermaid
 sequenceDiagram
     participant S as Server
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C2->>S: TakeCardFromHeap
-    S->>S: Take a random card (value) from the heap
+    C2->>S: TakeCardFromDeck
+    S->>S: Take a random card (value) from the deck
     S->>S: Save pending notifications
     par
-        S->>C1: HeapCardTaken(playerIndex)
+        S->>C1: CardsReplacedFromDeck(playerIndex, cardIndexes, discardedValue)
     and
-        S->>C3: HeapCardTaken(playerIndex)
+        S->>C3: CardsReplacedFromDeck(playerIndex, cardIndexes, discardedValue)
     end
     Note over S: Wait for all acks
     par
@@ -471,7 +471,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: Card(value)
+    S->>C2: ReplacedCardsFromDeck(cardIndexes, discardedValue)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to the next turn (phase B)
@@ -487,9 +487,9 @@ sequenceDiagram
     C2->>S: TakeDiscardedCard
     S->>S: Save pending notifications
     par
-        S->>C1: DiscardedCardTaken(playerIndex, value)
+        S->>C1: CardsReplacedByDiscarded(playerIndex, cardIndexes, discardedValue)
     and
-        S->>C3: DiscardedCardTaken(playerIndex, value)
+        S->>C3: CardsReplacedByDiscarded(playerIndex, cardIndexes, discardedValue)
     end
     Note over S: Wait for all acks
     par
@@ -499,7 +499,7 @@ sequenceDiagram
         C1-->>S: Ack
         S->>S: Clear notification 1
     end
-    S->>C2: Card(value)
+    S->>C2: ReplacedCardsByDiscarded(cardIndexes, discardedValue)
     C2-->>S: Ack
     S->>S: Clear notification 2 and update state
     Note over S,C3: Proceed to the next turn (phase B)
