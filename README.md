@@ -12,7 +12,7 @@ stateDiagram-v2
     [*] --> STARTING
     STARTING --> READY_FOR_TURN
     READY_FOR_TURN --> DECK_CARD_TAKEN: TakeCardFromDeck
-    READY_FOR_TURN --> READY_FOR_TURN: ReplaceCardByDiscarded<br/>StopRound
+    READY_FOR_TURN --> READY_FOR_TURN: StopRound,<br/>ReplaceCardByDiscarded
     READY_FOR_TURN --> showing_cards: ShowCards
     showing_cards --> REPLACING_MULTIPLE_CARDS: all cards are identical
     showing_cards --> READY_FOR_TURN: some cards are different
