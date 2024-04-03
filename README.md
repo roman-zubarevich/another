@@ -445,16 +445,18 @@ sequenceDiagram
     par
         S->>C1: CardsReplacedFromDeck(playerIndex, cardIndexes, discardedValue)
     and
+        S->>C2: ReplacedCardsFromDeck(cardIndexes, discardedValue)
+    and
         S->>C3: CardsReplacedFromDeck(playerIndex, cardIndexes, discardedValue)
     end
     Note over S: Wait for all acks
     par
+        C2-->>S: Ack
+    and
         C3-->>S: Ack
     and
         C1-->>S: Ack
     end
-    S->>C2: ReplacedCardsFromDeck(cardIndexes, discardedValue)
-    C2-->>S: Ack
     Note over S,C3: Proceed to the next turn (phase B)
 ```
 
@@ -470,15 +472,17 @@ sequenceDiagram
     par
         S->>C1: CardsReplacedByDiscarded(playerIndex, cardIndexes, discardedValue)
     and
+        S->>C2: ReplacedCardsByDiscarded(cardIndexes, discardedValue)
+    and
         S->>C3: CardsReplacedByDiscarded(playerIndex, cardIndexes, discardedValue)
     end
     Note over S: Wait for all acks
     par
+        C2-->>S: Ack
+    and
         C3-->>S: Ack
     and
         C1-->>S: Ack
     end
-    S->>C2: ReplacedCardsByDiscarded(cardIndexes, discardedValue)
-    C2-->>S: Ack
     Note over S,C3: Proceed to the next turn (phase B)
 ```
