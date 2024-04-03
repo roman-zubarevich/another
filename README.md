@@ -19,8 +19,8 @@ stateDiagram-v2
     SHOWING_CARDS --> comparing_cards: Acks
     comparing_cards --> READY_FOR_TURN: some cards are different
     comparing_cards --> replacing_cards: all cards are identical
-    replacing_cards --> REPLACING_CARDS_FROM_DECK: TakeCardFromDeck
-    replacing_cards --> REPLACING_CARDS_BY_DISCARDED: TakeDiscardedCard
+    replacing_cards --> REPLACING_MULTIPLE_CARDS_FROM_DECK: TakeCardFromDeck
+    replacing_cards --> REPLACING_MULTIPLE_CARDS_BY_DISCARDED: TakeDiscardedCard
     DECK_CARD_TAKEN --> REPLACING_CARD: ReplaceCard
     REPLACING_CARD --> turn_done: Acks
     DECK_CARD_TAKEN --> DISCARDING: Discard
@@ -29,13 +29,15 @@ stateDiagram-v2
     discarded --> PEEKING_OWN_CARD: 7 or 8, PeekOwnCard
     discarded --> PEEKING_ANOTHERS_CARD: 9 or 10, PeekAnothersCard
     discarded --> EXCHANGING_CARDS: 11 or 12, ExchangeCards
-    REPLACING_CARDS_BY_DISCARDED --> READY_FOR_TURN: Acks
-    REPLACING_CARDS_FROM_DECK --> turn_done: Acks
+    REPLACING_CARD_BY_DISCARDED --> READY_FOR_TURN: Acks
+    REPLACING_MULTIPLE_CARDS_BY_DISCARDED --> READY_FOR_TURN: Acks
+    STOPPING --> READY_FOR_TURN: Acks
+    REPLACING_MULTIPLE_CARDS_FROM_DECK --> turn_done: Acks
     PEEKING_OWN_CARD --> turn_done: PeekOwnCard
     PEEKING_ANOTHERS_CARD --> turn_done: PeekAnothersCard
     EXCHANGING_CARDS --> turn_done: ExchangeCards
-    turn_done --> READY_FOR_TURN: Acks, not last turn
-    turn_done --> FINISHED: Acks, last turn
+    turn_done --> READY_FOR_TURN: not last turn
+    turn_done --> FINISHED: last turn
     FINISHED --> [*]
 ```
 
