@@ -18,7 +18,7 @@ stateDiagram-v2
     READY_FOR_TURN --> SHOWING_CARDS: ShowCards
     SHOWING_CARDS --> comparing_cards: Acks
     comparing_cards --> READY_FOR_TURN: some cards are different
-    comparing_cards --> replacing_multiple_cards: all cards are identical
+    comparing_cards --> replacing_cards: all cards are identical
     replacing_cards --> REPLACING_CARDS_FROM_DECK: TakeCardFromDeck
     replacing_cards --> REPLACING_CARDS_BY_DISCARDED: TakeDiscardedCard
     DECK_CARD_TAKEN --> REPLACING_CARD: ReplaceCard
@@ -30,7 +30,7 @@ stateDiagram-v2
     discarded --> PEEKING_ANOTHERS_CARD: 9 or 10, PeekAnothersCard
     discarded --> EXCHANGING_CARDS: 11 or 12, ExchangeCards
     REPLACING_CARDS_BY_DISCARDED --> READY_FOR_TURN: Acks
-    REPLACING_CARDS_FROM_DECK --> turn_done
+    REPLACING_CARDS_FROM_DECK --> turn_done: Acks
     PEEKING_OWN_CARD --> turn_done: PeekOwnCard
     PEEKING_ANOTHERS_CARD --> turn_done: PeekAnothersCard
     EXCHANGING_CARDS --> turn_done: ExchangeCards
