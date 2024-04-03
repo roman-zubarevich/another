@@ -431,7 +431,7 @@ sequenceDiagram
     participant C3 as Client 3
     C2->>S: TakeCardFromDeck
     S->>S: Take a random card (value) from the deck
-    S->>S: Save pending notifications
+    S->>S: Update state
     par
         S->>C1: CardsReplacedFromDeck(playerIndex, cardIndexes, discardedValue)
     and
@@ -456,7 +456,7 @@ sequenceDiagram
     participant C2 as Client 2
     participant C3 as Client 3
     C2->>S: TakeDiscardedCard
-    S->>S: Save pending notifications
+    S->>S: Update state
     par
         S->>C1: CardsReplacedByDiscarded(playerIndex, cardIndexes, discardedValue)
     and
