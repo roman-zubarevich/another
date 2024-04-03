@@ -7,28 +7,35 @@ Design decisions:
 ```mermaid
 stateDiagram-v2
     state discarded <<choice>>
-    state showing_cards <<choice>>
+    state comparing_cards <<choice>>
+    state replacing_cards <<choice>>
     state turn_done <<choice>>
-    [*] --> STARTING
-    STARTING --> READY_FOR_TURN
+    [*] --> STARTING: StartRound
+    STARTING --> READY_FOR_TURN: Acks
     READY_FOR_TURN --> DECK_CARD_TAKEN: TakeCardFromDeck
-    READY_FOR_TURN --> READY_FOR_TURN: StopRound,<br/>ReplaceCardByDiscarded
-    READY_FOR_TURN --> showing_cards: ShowCards
-    showing_cards --> REPLACING_MULTIPLE_CARDS: all cards are identical
-    showing_cards --> READY_FOR_TURN: some cards are different
-    DECK_CARD_TAKEN --> turn_done: ReplaceCard
-    DECK_CARD_TAKEN --> discarded: Discard
+    READY_FOR_TURN --> REPLACING_CARD_BY_DISCARDED: ReplaceCardByDiscarded
+    READY_FOR_TURN --> STOPPING: StopRound
+    READY_FOR_TURN --> SHOWING_CARDS: ShowCards
+    SHOWING_CARDS --> comparing_cards: Acks
+    comparing_cards --> READY_FOR_TURN: some cards are different
+    comparing_cards --> replacing_multiple_cards: all cards are identical
+    replacing_cards --> REPLACING_CARDS_FROM_DECK: TakeCardFromDeck
+    replacing_cards --> REPLACING_CARDS_BY_DISCARDED: TakeDiscardedCard
+    DECK_CARD_TAKEN --> REPLACING_CARD: ReplaceCard
+    REPLACING_CARD --> turn_done: Acks
+    DECK_CARD_TAKEN --> DISCARDING: Discard
+    DISCARDING --> discarded: Acks
     discarded --> turn_done: plain card
-    discarded --> PEEKING_OWN_CARD: 7 or 8
-    discarded --> PEEKING_ANOTHERS_CARD: 9 or 10
-    discarded --> EXCHANGING_CARDS: 11 or 12
-    REPLACING_MULTIPLE_CARDS --> READY_FOR_TURN: TakeDiscardedCard
-    REPLACING_MULTIPLE_CARDS --> turn_done: TakeCardFromDeck
+    discarded --> PEEKING_OWN_CARD: 7 or 8, PeekOwnCard
+    discarded --> PEEKING_ANOTHERS_CARD: 9 or 10, PeekAnothersCard
+    discarded --> EXCHANGING_CARDS: 11 or 12, ExchangeCards
+    REPLACING_CARDS_BY_DISCARDED --> READY_FOR_TURN: Acks
+    REPLACING_CARDS_FROM_DECK --> turn_done
     PEEKING_OWN_CARD --> turn_done: PeekOwnCard
     PEEKING_ANOTHERS_CARD --> turn_done: PeekAnothersCard
     EXCHANGING_CARDS --> turn_done: ExchangeCards
-    turn_done --> READY_FOR_TURN: not last turn
-    turn_done --> FINISHED: last turn
+    turn_done --> READY_FOR_TURN: Acks, not last turn
+    turn_done --> FINISHED: Acks, last turn
     FINISHED --> [*]
 ```
 
