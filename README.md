@@ -21,8 +21,8 @@ stateDiagram-v2
     comparing_cards --> replacing_cards: all cards are identical
     replacing_cards --> REPLACING_MULTIPLE_CARDS_FROM_DECK: TakeCardFromDeck
     replacing_cards --> REPLACING_MULTIPLE_CARDS_BY_DISCARDED: TakeDiscardedCard
-    DECK_CARD_TAKEN --> REPLACING_CARD: ReplaceCard
-    REPLACING_CARD --> turn_done: Acks
+    DECK_CARD_TAKEN --> REPLACING_CARD_FROM_DECK: ReplaceCard
+    REPLACING_CARD_FROM_DECK --> turn_done: Acks
     DECK_CARD_TAKEN --> DISCARDING: Discard
     DISCARDING --> discarded: Acks
     discarded --> turn_done: plain card
