@@ -45,6 +45,7 @@ sequenceDiagram
     C1->>S: StartRound
     S->>S: Prepare initial state of the round
     S->>S: Randomly pick players' cards
+    S->>S: Update state
     par
         S->>C1: GameState(deckSize, discardedValue, handSizes, playerIndex)
     and
