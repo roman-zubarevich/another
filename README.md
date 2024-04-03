@@ -440,10 +440,8 @@ sequenceDiagram
     Note over S: Wait for all acks
     par
         C3-->>S: Ack
-        S->>S: Clear notification 3
     and
         C1-->>S: Ack
-        S->>S: Clear notification 1
     end
     S->>C2: ReplacedCardsFromDeck(cardIndexes, discardedValue)
     C2-->>S: Ack
@@ -467,10 +465,8 @@ sequenceDiagram
     Note over S: Wait for all acks
     par
         C3-->>S: Ack
-        S->>S: Clear notification 3
     and
         C1-->>S: Ack
-        S->>S: Clear notification 1
     end
     S->>C2: ReplacedCardsByDiscarded(cardIndexes, discardedValue)
     C2-->>S: Ack
