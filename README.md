@@ -27,16 +27,16 @@ stateDiagram-v2
     DECK_CARD_TAKEN --> DISCARDING: Discard
     DISCARDING --> discarded: Acks
     discarded --> turn_done: plain card
-    discarded --> PEEKING_OWN_CARD: 7 or 8
-    discarded --> PEEKING_ANOTHERS_CARD: 9 or 10
-    discarded --> EXCHANGING_CARDS: 11 or 12
+    discarded --> PEEKING_OWN_CARD: 7 or 8,<br/>PeekOwnCard
+    discarded --> PEEKING_ANOTHERS_CARD: 9 or 10,<br/>PeekAnothersCard
+    discarded --> EXCHANGING_CARDS: 11 or 12,<br/>ExchangeCards
     REPLACING_CARD_BY_DISCARDED --> READY_FOR_TURN: Acks
     REPLACING_MULTIPLE_CARDS_BY_DISCARDED --> READY_FOR_TURN: Acks
     ROUND_STOPPING --> READY_FOR_TURN: Acks
     REPLACING_MULTIPLE_CARDS_FROM_DECK --> turn_done: Acks
-    PEEKING_OWN_CARD --> turn_done: PeekOwnCard
-    PEEKING_ANOTHERS_CARD --> turn_done: PeekAnothersCard
-    EXCHANGING_CARDS --> turn_done: ExchangeCards
+    PEEKING_OWN_CARD --> turn_done: Acks
+    PEEKING_ANOTHERS_CARD --> turn_done: Acks
+    EXCHANGING_CARDS --> turn_done: Acks
     turn_done --> READY_FOR_TURN: not last turn
     turn_done --> round_done: last turn
     round_done --> ROUND_FINISHED: nobody's score exceeds 66
