@@ -20,9 +20,9 @@ stateDiagram-v2
     SHOWING_CARDS --> comparing_cards: Acks
     comparing_cards --> READY_FOR_TURN: some cards are different
     comparing_cards --> replacing_cards: all cards are identical
-    replacing_cards --> REPLACING_MULTIPLE_CARDS_FROM_DECK: TakeCardFromDeck
-    replacing_cards --> REPLACING_MULTIPLE_CARDS_BY_DISCARDED: TakeDiscardedCard
-    DECK_CARD_TAKEN --> REPLACING_CARD_FROM_DECK: ReplaceCard
+    replacing_cards --> REPLACING_MULTIPLE_CARDS_FROM_DECK: ReplaceCardsFromDeck
+    replacing_cards --> REPLACING_MULTIPLE_CARDS_BY_DISCARDED: ReplaceCardsByDiscarded
+    DECK_CARD_TAKEN --> REPLACING_CARD_FROM_DECK: ReplaceCardFromDeck
     REPLACING_CARD_FROM_DECK --> turn_done: Acks
     DECK_CARD_TAKEN --> DISCARDING: Discard
     DISCARDING --> discarded: Acks
@@ -256,7 +256,7 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C2->>S: ReplaceCard(cardIndex)
+    C2->>S: ReplaceCardFromDeck(cardIndex)
     S->>S: Update state
     par
         S->>C1: CardReplacedFromDeck(playerIndex, cardIndex, discardedValue)
@@ -443,7 +443,7 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C2->>S: TakeCardFromDeck
+    C2->>S: ReplaceCardsFromDeck
     S->>S: Take a random card (value) from the deck
     S->>S: Update state
     par
@@ -471,7 +471,7 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C2->>S: TakeDiscardedCard
+    C2->>S: ReplaceCardsByDiscarded
     S->>S: Update state
     par
         S->>C1: CardsReplacedByDiscarded(playerIndex, cardIndexes, discardedValue)
