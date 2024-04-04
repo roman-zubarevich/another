@@ -11,11 +11,11 @@ stateDiagram-v2
     state replacing_cards <<choice>>
     state turn_done <<choice>>
     state round_done <<choice>>
-    [*] --> ROUND_STARTING: StartRound
+    [*] --> ROUND_STARTING: StartGame
     ROUND_STARTING --> READY_FOR_TURN: Acks
     READY_FOR_TURN --> DECK_CARD_TAKEN: TakeCardFromDeck
     READY_FOR_TURN --> REPLACING_CARD_BY_DISCARDED: ReplaceCardByDiscarded
-    READY_FOR_TURN --> STOPPING: StopRound
+    READY_FOR_TURN --> ROUND_STOPPING: StopRound
     READY_FOR_TURN --> SHOWING_CARDS: ShowCards
     SHOWING_CARDS --> comparing_cards: Acks
     comparing_cards --> READY_FOR_TURN: some cards are different
@@ -32,16 +32,16 @@ stateDiagram-v2
     discarded --> EXCHANGING_CARDS: 11 or 12, ExchangeCards
     REPLACING_CARD_BY_DISCARDED --> READY_FOR_TURN: Acks
     REPLACING_MULTIPLE_CARDS_BY_DISCARDED --> READY_FOR_TURN: Acks
-    STOPPING --> READY_FOR_TURN: Acks
+    ROUND_STOPPING --> READY_FOR_TURN: Acks
     REPLACING_MULTIPLE_CARDS_FROM_DECK --> turn_done: Acks
     PEEKING_OWN_CARD --> turn_done: PeekOwnCard
     PEEKING_ANOTHERS_CARD --> turn_done: PeekAnothersCard
     EXCHANGING_CARDS --> turn_done: ExchangeCards
     turn_done --> READY_FOR_TURN: not last turn
     turn_done --> round_done: last turn
-    round_done --> ROUND_FINISHED: nobody's score exceeded 66
-    round_done --> GAME_FINISHED: someone's score exceeded 66
-    ROUND_FINISHED --> ROUND_STARTING: StartRound
+    round_done --> ROUND_FINISHED: nobody's score exceeds 66
+    round_done --> GAME_FINISHED: someone's score exceeds 66
+    ROUND_FINISHED --> ROUND_STARTING: StartNextRound
     GAME_FINISHED --> [*]
 ```
 
@@ -55,7 +55,7 @@ sequenceDiagram
     participant C1 as Client 1
     participant C2 as Client 2
     participant C3 as Client 3
-    C1->>S: StartRound
+    C1->>S: StartNextRound or StartGame
     S->>S: Prepare initial state of the round
     S->>S: Randomly pick players' cards
     S->>S: Update state
