@@ -37,8 +37,11 @@ stateDiagram-v2
     PEEKING_ANOTHERS_CARD --> turn_done: PeekAnothersCard
     EXCHANGING_CARDS --> turn_done: ExchangeCards
     turn_done --> READY_FOR_TURN: not last turn
-    turn_done --> FINISHED: last turn
-    FINISHED --> [*]
+    turn_done --> round_done: last turn
+    round_done --> ROUND_FINISHED: nobody's score exceeded 66
+    round_done --> GAME_FINISHED: someone's score exceeded 66
+    ROUND_FINISHED --> STARTING: StartRound
+    GAME_FINISHED --> [*]
 ```
 
 
@@ -85,7 +88,7 @@ sequenceDiagram
     and
         C1-->>S: Ack
     end
-    Note over S,C3: Proceed to the first turn initiation (phase B)
+    Note over S,C3: Proceed to the first turn of the first round (phase B)
 ```
 
 
@@ -485,4 +488,57 @@ sequenceDiagram
         C1-->>S: Ack
     end
     Note over S,C3: Proceed to the next turn (phase B)
+```
+
+### Final phase
+
+Round is finished, but the game will continue:
+```mermaid
+sequenceDiagram
+    participant S as Server
+    participant C1 as Client 1
+    participant C2 as Client 2
+    participant C3 as Client 3
+    S->>S: Calculate round and total score
+    S->>S: Update state
+    par
+        S->>C1: RoundFinished(turnCount, scores, totalScores, nextPlayerIndex)
+    and
+        S->>C3: RoundFinished(turnCount, scores, totalScores, nextPlayerIndex)
+    end
+    Note over S: Wait for all acks
+    par
+        C3-->>S: Ack
+    and
+        C1-->>S: Ack
+    end
+    S->>C2: RoundFinished(turnCount, scores, totalScores, nextPlayerIndex)
+    C2-->>S: Ack
+    C2->S: StartNextRound
+    Note over S,C3: Proceed to the first turn of the new round (phase B)
+```
+
+Game is finished:
+```mermaid
+sequenceDiagram
+    participant S as Server
+    participant C1 as Client 1
+    participant C2 as Client 2
+    participant C3 as Client 3
+    S->>S: Calculate round and total score
+    S->>S: Update state
+    par
+        S->>C1: GameFinished(roundCount, scores, totalScores)
+    and
+        S->>C2: GameFinished(roundCount, scores, totalScores)
+    and
+        S->>C3: GameFinished(roundCount, scores, totalScores)
+    end
+    par
+        C2-->>S: Ack
+    and
+        C3-->>S: Ack
+    and
+        C1-->>S: Ack
+    end
 ```
