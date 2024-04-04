@@ -6,9 +6,8 @@ Design decisions:
 
 ```mermaid
 stateDiagram-v2
-    state discarded <<choice>>
+    state checking_card <<choice>>
     state comparing_cards <<choice>>
-    state replacing_cards <<choice>>
     state turn_done <<choice>>
     state round_done <<choice>>
     [*] --> ROUND_STARTING: StartGame
@@ -16,20 +15,23 @@ stateDiagram-v2
     READY_FOR_TURN --> DECK_CARD_TAKEN: TakeCardFromDeck
     READY_FOR_TURN --> REPLACING_CARD_BY_DISCARDED: ReplaceCardByDiscarded
     READY_FOR_TURN --> ROUND_STOPPING: StopRound
-    READY_FOR_TURN --> SHOWING_CARDS: ShowCards
-    SHOWING_CARDS --> comparing_cards: Acks
-    comparing_cards --> READY_FOR_TURN: some cards are different
-    comparing_cards --> replacing_cards: all cards are identical
-    replacing_cards --> REPLACING_MULTIPLE_CARDS_FROM_DECK: ReplaceCardsFromDeck
-    replacing_cards --> REPLACING_MULTIPLE_CARDS_BY_DISCARDED: ReplaceCardsByDiscarded
+    READY_FOR_TURN --> comparing_cards: ShowCards
+    comparing_cards --> SHOWING_IDENTICAL_CARDS: all cards are identical
+    comparing_cards --> SHOWING_DIFFERENT_CARDS: some cards are different
+    SHOWING_DIFFERENT_CARDS --> READY_FOR_TURN: Acks
+    SHOWING_IDENTICAL_CARDS --> REPLACING_MULTIPLE_CARDS_FROM_DECK: ReplaceCardsFromDeck
+    SHOWING_IDENTICAL_CARDS --> REPLACING_MULTIPLE_CARDS_BY_DISCARDED: ReplaceCardsByDiscarded
     DECK_CARD_TAKEN --> REPLACING_CARD_FROM_DECK: ReplaceCardFromDeck
     REPLACING_CARD_FROM_DECK --> turn_done: Acks
-    DECK_CARD_TAKEN --> DISCARDING: Discard
-    DISCARDING --> discarded: Acks
-    discarded --> turn_done: plain card
-    discarded --> PEEKING_OWN_CARD: 7 or 8,<br/>PeekOwnCard
-    discarded --> PEEKING_ANOTHERS_CARD: 9 or 10,<br/>PeekAnothersCard
-    discarded --> EXCHANGING_CARDS: 11 or 12,<br/>ExchangeCards
+    DECK_CARD_TAKEN --> checking_card: Discard
+    checking_card --> DISCARDING_PLAIN: plain card
+    checking_card --> DISCARDING_7_8: 7 or 8
+    checking_card --> DISCARDING_9_10: 9 or 10
+    checking_card --> DISCARDING_11_12: 11 or 12
+    DISCARDING_PLAIN --> turn_done: Acks
+    DISCARDING_7_8 --> PEEKING_OWN_CARD: PeekOwnCard
+    DISCARDING_9_10 --> PEEKING_ANOTHERS_CARD: PeekAnothersCard
+    DISCARDING_11_12 --> EXCHANGING_CARDS: ExchangeCards
     REPLACING_CARD_BY_DISCARDED --> READY_FOR_TURN: Acks
     REPLACING_MULTIPLE_CARDS_BY_DISCARDED --> READY_FOR_TURN: Acks
     ROUND_STOPPING --> READY_FOR_TURN: Acks
