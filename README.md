@@ -10,6 +10,7 @@ stateDiagram-v2
     state comparing_cards <<choice>>
     state replacing_cards <<choice>>
     state turn_done <<choice>>
+    state round_done <<choice>>
     [*] --> STARTING: StartRound
     STARTING --> READY_FOR_TURN: Acks
     READY_FOR_TURN --> DECK_CARD_TAKEN: TakeCardFromDeck
