@@ -27,9 +27,9 @@ stateDiagram-v2
     DECK_CARD_TAKEN --> DISCARDING: Discard
     DISCARDING --> discarded: Acks
     discarded --> turn_done: plain card
-    discarded --> PEEKING_OWN_CARD: 7 or 8, PeekOwnCard
-    discarded --> PEEKING_ANOTHERS_CARD: 9 or 10, PeekAnothersCard
-    discarded --> EXCHANGING_CARDS: 11 or 12, ExchangeCards
+    discarded --> PEEKING_OWN_CARD: 7 or 8
+    discarded --> PEEKING_ANOTHERS_CARD: 9 or 10
+    discarded --> EXCHANGING_CARDS: 11 or 12
     REPLACING_CARD_BY_DISCARDED --> READY_FOR_TURN: Acks
     REPLACING_MULTIPLE_CARDS_BY_DISCARDED --> READY_FOR_TURN: Acks
     ROUND_STOPPING --> READY_FOR_TURN: Acks
