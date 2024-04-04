@@ -11,8 +11,8 @@ stateDiagram-v2
     state replacing_cards <<choice>>
     state turn_done <<choice>>
     state round_done <<choice>>
-    [*] --> STARTING: StartRound
-    STARTING --> READY_FOR_TURN: Acks
+    [*] --> ROUND_STARTING: StartRound
+    ROUND_STARTING --> READY_FOR_TURN: Acks
     READY_FOR_TURN --> DECK_CARD_TAKEN: TakeCardFromDeck
     READY_FOR_TURN --> REPLACING_CARD_BY_DISCARDED: ReplaceCardByDiscarded
     READY_FOR_TURN --> STOPPING: StopRound
@@ -41,7 +41,7 @@ stateDiagram-v2
     turn_done --> round_done: last turn
     round_done --> ROUND_FINISHED: nobody's score exceeded 66
     round_done --> GAME_FINISHED: someone's score exceeded 66
-    ROUND_FINISHED --> STARTING: StartRound
+    ROUND_FINISHED --> ROUND_STARTING: StartRound
     GAME_FINISHED --> [*]
 ```
 
