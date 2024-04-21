@@ -16,35 +16,35 @@ stateDiagram-v2
     READY_FOR_TURN --> DISCARDED_CARD_TAKEN: TakeDiscardedCard
     READY_FOR_TURN --> ROUND_STOPPING: StopRound
     READY_FOR_TURN --> comparing_cards: ShowCards
-    DECK_CARD_TAKEN --> REPLACING_CARDS_FROM_DECK: PickOwnCard
-    DECK_CARD_TAKEN --> checking_card: Discard
-    DISCARDED_CARD_TAKEN --> REPLACING_CARDS_BY_DISCARDED: PickOwnCard
-    ROUND_STOPPING --> READY_FOR_TURN: Acks
     comparing_cards --> SHOWING_IDENTICAL_CARDS: all cards are identical
     comparing_cards --> SHOWING_DIFFERENT_CARDS: some cards are different
+    SHOWING_DIFFERENT_CARDS --> READY_FOR_TURN: Acks
+    SHOWING_IDENTICAL_CARDS --> REPLACING_CARDS_FROM_DECK: TakeCardFromDeck
+    SHOWING_IDENTICAL_CARDS --> REPLACING_CARDS_BY_DISCARDED: TakeDiscardedCard
+    DECK_CARD_TAKEN --> REPLACING_CARDS_FROM_DECK: PickOwnCard
     REPLACING_CARDS_FROM_DECK --> turn_done: Acks
+    DISCARDED_CARD_TAKEN --> REPLACING_CARDS_BY_DISCARDED: PickOwnCard
+    DECK_CARD_TAKEN --> checking_card: Discard
     checking_card --> DISCARDING_PLAIN: plain card
     checking_card --> DISCARDING_7_8: 7 or 8
     checking_card --> DISCARDING_9_10: 9 or 10
     checking_card --> DISCARDING_11_12: 11 or 12
-    REPLACING_CARDS_BY_DISCARDED --> READY_FOR_TURN: Acks
-    SHOWING_IDENTICAL_CARDS --> REPLACING_CARDS_FROM_DECK: TakeCardFromDeck
-    SHOWING_IDENTICAL_CARDS --> REPLACING_CARDS_BY_DISCARDED: TakeDiscardedCard
-    SHOWING_DIFFERENT_CARDS --> READY_FOR_TURN: Acks
-    turn_done --> READY_FOR_TURN: not last turn
-    turn_done --> round_done: last turn
     DISCARDING_PLAIN --> turn_done: Acks
     DISCARDING_7_8 --> SEEING_OWN_CARD: PickOwnCard
     DISCARDING_9_10 --> SEEING_ANOTHERS_CARD: PickAnothersCard
     DISCARDING_11_12 --> PICKING_ANOTHERS_CARD_FOR_EXCHANGE: PickOwnCard
-    round_done --> ROUND_FINISHED: nobody's score exceeds 66
-    round_done --> GAME_FINISHED: someone's score exceeds 66
+    REPLACING_CARDS_BY_DISCARDED --> READY_FOR_TURN: Acks
+    ROUND_STOPPING --> READY_FOR_TURN: Acks
     SEEING_OWN_CARD --> turn_done: Acks
     SEEING_ANOTHERS_CARD --> turn_done: Acks
     PICKING_ANOTHERS_CARD_FOR_EXCHANGE --> EXCHANGING_CARDS: PickAnothersCard
+    EXCHANGING_CARDS --> turn_done: Acks
+    turn_done --> READY_FOR_TURN: not last turn
+    turn_done --> round_done: last turn
+    round_done --> ROUND_FINISHED: nobody's score exceeds 66
+    round_done --> GAME_FINISHED: someone's score exceeds 66
     ROUND_FINISHED --> ROUND_STARTING: StartNextRound
     GAME_FINISHED --> [*]
-    EXCHANGING_CARDS --> turn_done: Acks
 ```
 
 
