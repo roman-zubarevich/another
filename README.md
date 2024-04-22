@@ -45,7 +45,7 @@ stateDiagram-v2
     turn_done --> READY_FOR_TURN: not last turn
     turn_done --> ROUND_FINISHED: last turn
     ROUND_FINISHED --> round_done: Acks
-    round_done --> ROUND_STARTING: nobody's score exceeds 66, StartNextRound
+    round_done --> ROUND_STARTING: nobody's score exceeds 66,<br>StartNextRound
     round_done --> [*]: someone's score exceeds 66
 ```
 
