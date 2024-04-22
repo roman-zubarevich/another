@@ -1,7 +1,9 @@
 Design decisions:
-* Server should not send to a client any data that the corresponding player is not supposed to see. This will prevent cheating by means of a modified client.
-* Server should explicitly send all data relevant to a client, even if the data can be figured out on the client side. Rationale: avoid game logic duplication with a cost of slightly higher network traffic.
-* Every state change on server side happens in two steps: 1) pending notifications for all players are added to the state and persisted; 2) when all players confirm reception of the notifications, server persists the next state and clears all pending notifications. This allows to restore the state gracefully in case any connection gets broken or any participant goes down: it is guaranteed that every player sees every update (not just gets up-to-date state when reconnected).
+* Server does not send to a client any data that the corresponding player is not supposed to see. This will prevent cheating by means of a modified client.
+* Server should explicitly send all data relevant to a client (including the list of allowed actions), even if the data can be figured out on the client side. Rationale: avoid game logic duplication with a cost of slightly higher network traffic.
+* Client should acknowledge every notification received from server. Before proceeding to next state or sending more notifications, server waits for either a request from the active player or acks from all clients.
+* Every state change on server side is persisted. This allows to restore the state gracefully in case any connection gets broken or any participant goes down or suspends the game: it is guaranteed that every player sees every update (not just gets up-to-date state when reconnected).
+* When the game is resumed, it starts from the current major state and sends the necessary updates to clients. E.g. if suspended at the very beginning, the game will reveal 2 initial cards to each player when resumed.
 
 
 ```mermaid
