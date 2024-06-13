@@ -8,6 +8,7 @@ The 66 game is an online multiplayer implementation of a turn-based board game w
 ## High-level view
 
 The game is built as a classic client-server application:
+
 ![Architecture diagram](architecture.svg)
 
 Server is written in Kotlin. WebSocket messaging is implemented on top of coroutine-based Ktor library. To keep things simple, all messages are in plain JSON format.
