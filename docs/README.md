@@ -1,3 +1,14 @@
+# Overview
+
+The 66 game is an online multiplayer implementation of a board game with cards.
+2 to 5 people can play together, no AI players are currently supported. Only web client is available at the moment.
+
+# High-level architecture
+
+![Architecture diagram](architecture.svg)
+
+
+
 Design decisions:
 * Server does not send to a client any data that the corresponding player is not supposed to see. This will prevent cheating by means of a modified client.
 * Server should explicitly send all data relevant to a client (including the list of allowed actions), even if the data can be figured out on the client side. Rationale: avoid game logic duplication with a cost of slightly higher network traffic.
@@ -126,7 +137,7 @@ sequenceDiagram
 ```
 
 
-### Phase 3 (initial selection, identity testing, or stopping)
+### Phase 3 (initial card selection or stopping round)
 
 Pick card from deck:
 ```mermaid
@@ -185,7 +196,7 @@ sequenceDiagram
 ```
 
 
-### Phase 4a (replacing)
+### Phase 4a (replacing or identity testing)
 
 Replace a card in player's hand by the picked card:
 ```mermaid
