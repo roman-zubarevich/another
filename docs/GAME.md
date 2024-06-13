@@ -1,4 +1,6 @@
-# Game states
+# Gameplay implementation
+
+## Gameplay states
 
 ```mermaid
 stateDiagram-v2
@@ -44,9 +46,11 @@ stateDiagram-v2
     round_done --> [*]: someone's score exceeds 66
 ```
 
-# Client-server interaction protocol
+## Client-server interaction protocol
 
-## Phase 1 (round start)
+Assuming that there are 3 players in the game, so 3 clients participate in interactions.
+
+### Phase 1 (round start)
 
 Start a new round:
 ```mermaid
@@ -92,7 +96,7 @@ sequenceDiagram
     Note over S,C3: Proceed to the first turn of the first round (phase 2)
 ```
 
-## Phase 2 (turn initiation)
+### Phase 2 (turn initiation)
 
 Initiate a turn (select random player for the first one, the 2nd player is selected here):
 ```mermaid
@@ -119,7 +123,7 @@ sequenceDiagram
     Note over S,C3: Proceed to phase 3
 ```
 
-## Phase 3 (initial card selection or stopping round)
+### Phase 3 (initial card selection or stopping round)
 
 Pick card from deck:
 ```mermaid
@@ -177,7 +181,7 @@ sequenceDiagram
     Note over S,C3: Proceed to the next turn (phase 2)
 ```
 
-## Phase 4a (replacing or identity testing)
+### Phase 4a (replacing or identity testing)
 
 Replace a card in player's hand by the picked card:
 ```mermaid
@@ -278,7 +282,7 @@ sequenceDiagram
     Note over S,C3: Proceed to the next turn (phase 2)
 ```
 
-## Phase 4b (discarding)
+### Phase 4b (discarding)
 
 Discard the picked card (simple):
 ```mermaid
@@ -441,7 +445,7 @@ sequenceDiagram
     Note over S,C3: Proceed to the next turn (phase 2)
 ```
 
-## Phase 5 (finish round)
+### Phase 5 (finish round)
 
 Round is finished, but the game will continue:
 ```mermaid
