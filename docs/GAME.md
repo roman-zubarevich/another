@@ -48,7 +48,7 @@ stateDiagram-v2
 
 ## Client-server interaction protocol
 
-Assuming that there are 3 players in the game, so 3 clients participate in interactions.
+Assuming that there are 3 players in the game, so 3 clients interact with server.
 
 ### Phase 1 (round start)
 
@@ -64,11 +64,11 @@ sequenceDiagram
     S->>S: Randomly pick players' cards
     S->>S: Update state
     par
-        S->>C1: BoardInitialized(deckSize, deckCard, discardedValue, handSizes, stopCounter, round, turn)
+        S->>C1: BoardInitialized(activePlayerIndex, deckSize, discardedValue, handSizes, stopperIndex, round, turn)
     and
-        S->>C2: BoardInitialized(deckSize, deckCard, discardedValue, handSizes, stopCounter, round, turn)
+        S->>C2: BoardInitialized(activePlayerIndex, deckSize, discardedValue, handSizes, stopperIndex, round, turn)
     and
-        S->>C3: BoardInitialized(deckSize, deckCard, discardedValue, handSizes, stopCounter, round, turn)
+        S->>C3: BoardInitialized(activePlayerIndex, deckSize, discardedValue, handSizes, stopperIndex, round, turn)
     end
     Note over S: Wait for all acks
     par
@@ -79,11 +79,11 @@ sequenceDiagram
         C1-->>S: Ack
     end
     par
-        S->>C1: CardsRevealed(value1_1, value1_2)
+        S->>C1: CardsRevealed(lookingPlayerIndex, targetPlayerIndex, firstTwoCardIndexes, firstTwoCardValues1)
     and
-        S->>C2: CardsRevealed(value2_1, value2_2)
+        S->>C2: CardsRevealed(lookingPlayerIndex, targetPlayerIndex, firstTwoCardIndexes, firstTwoCardValues2)
     and
-        S->>C3: CardsRevealed(value3_1, value3_2)
+        S->>C3: CardsRevealed(lookingPlayerIndex, targetPlayerIndex, firstTwoCardIndexes, firstTwoCardValues3)
     end
     Note over S: Wait for all acks
     par
@@ -98,7 +98,7 @@ sequenceDiagram
 
 ### Phase 2 (turn initiation)
 
-Initiate a turn (select random player for the first one, the 2nd player is selected here):
+Initiate a turn (select random player for the first turn, the 2nd player is selected here):
 ```mermaid
 sequenceDiagram
     participant S as Server
@@ -108,9 +108,9 @@ sequenceDiagram
     S->>S: Select a player to make a move
     S->>S: Update state
     par
-        S->>C1: BoardUpdated(activePlayerIndex, deckCard, stopCounter, turn)
+        S->>C1: TurnStarted(activePlayerIndex, turn)
     and
-        S->>C3: BoardUpdated(activePlayerIndex, deckCard, stopCounter, turn)
+        S->>C3: TurnStarted(activePlayerIndex, turn)
     end
     Note over S: Wait for all acks
     par
@@ -118,7 +118,7 @@ sequenceDiagram
     and
         C1-->>S: Ack
     end
-    S->>C2: BoardUpdated(activePlayerIndex, deckCard, stopCounter, turn, actions)
+    S->>C2: TurnStarted(activePlayerIndex, turn, actions)
     C2-->>S: Ack
     Note over S,C3: Proceed to phase 3
 ```
@@ -164,11 +164,11 @@ sequenceDiagram
     C2->>S: StopRound
     S->>S: Update state
     par
-        S->>C1: BoardUpdated(stopCounter)
+        S->>C1: StopRequested(stopperIndex)
     and
-        S->>C2: BoardUpdated(stopCounter)
+        S->>C2: StopRequested(stopperIndex)
     and
-        S->>C3: BoardUpdated(stopCounter)
+        S->>C3: StopRequested(stopperIndex)
     end
     Note over S: Wait for all acks
     par
@@ -221,11 +221,11 @@ sequenceDiagram
     S->>S: Compare card values (all appear equal)
     S->>S: Update state
     par
-        S->>C1: CardsRevealed(cards)
+        S->>C1: CardsRevealed(lookingPlayerIndexes, targetPlayerIndex, cardIndexes, cardValues)
     and
-        S->>C2: CardsRevealed(cardsWithoutValues)
+        S->>C2: CardsRevealed(lookingPlayerIndexes, targetPlayerIndex, cardIndexes)
     and
-        S->>C3: CardsRevealed(cards)
+        S->>C3: CardsRevealed(lookingPlayerIndexes, targetPlayerIndex, cardIndexes, cardValues)
     end
     Note over S: Wait for all acks
     par
@@ -265,11 +265,11 @@ sequenceDiagram
     S->>S: Compare card values (all appear equal)
     S->>S: Update state
     par
-        S->>C1: CardsRevealed(cards)
+        S->>C1: CardsRevealed(lookingPlayerIndexes, targetPlayerIndex, cardIndexes, cardValues)
     and
-        S->>C2: CardsRevealed(cardsWithoutValues)
+        S->>C2: CardsRevealed(lookingPlayerIndexes, targetPlayerIndex, cardIndexes)
     and
-        S->>C3: CardsRevealed(cards)
+        S->>C3: CardsRevealed(lookingPlayerIndexes, targetPlayerIndex, cardIndexes, cardValues)
     end
     Note over S: Wait for all acks
     par
@@ -284,7 +284,7 @@ sequenceDiagram
 
 ### Phase 4b (discarding)
 
-Discard the picked card (simple):
+Discard the picked card (plain):
 ```mermaid
 sequenceDiagram
     participant S as Server
@@ -295,11 +295,11 @@ sequenceDiagram
     S->>S: Check discarded card (appears to be plain)
     S->>S: Update state
     par
-        S->>C1: BoardUpdated(deckSize, deckCard, discardedValue)
+        S->>C1: BoardUpdated(deckSize, discardedValue)
     and
-        S->>C2: BoardUpdated(deckSize, deckCard, discardedValue)
+        S->>C2: BoardUpdated(deckSize, discardedValue)
     and
-        S->>C3: BoardUpdated(deckSize, deckCard, discardedValue)
+        S->>C3: BoardUpdated(deckSize, discardedValue)
     end
     Note over S: Wait for all acks
     par
@@ -333,16 +333,16 @@ sequenceDiagram
     and
         C1-->>S: Ack
     end
-    S->>C2: BoardUpdated(deckSize, deckCard, discardedValue, actions)
+    S->>C2: BoardUpdated(deckSize, discardedValue, actions)
     C2-->>S: Ack
     C2->>S: PeekOwnCard(cardIndex)
     S->>S: Update state
     par
-        S->>C1: CardsRevealed(cardWithoutValue)
+        S->>C1: CardsRevealed(lookingPlayerIndex, targetPlayerIndex, cardIndex)
     and
-        S->>C2: CardsRevealed(card)
+        S->>C2: CardsRevealed(lookingPlayerIndex, targetPlayerIndex, cardIndex, cardValue)
     and
-        S->>C3: CardsRevealed(cardWithoutValue)
+        S->>C3: CardsRevealed(lookingPlayerIndex, targetPlayerIndex, cardIndex)
     end
     Note over S: Wait for all acks
     par
@@ -376,16 +376,16 @@ sequenceDiagram
     and
         C1-->>S: Ack
     end
-    S->>C2: BoardUpdated(deckSize, deckCard, discardedValue, actions)
+    S->>C2: BoardUpdated(deckSize, discardedValue, actions)
     C2-->>S: Ack
     C2->>S: PeekAnothersCard(playerIndex, cardIndex)
     S->>S: Update state
     par
-        S->>C1: CardsRevealed(cardWithoutValue)
+        S->>C1: CardsRevealed(lookingPlayerIndex, targetPlayerIndex, cardIndex)
     and
-        S->>C2: CardsRevealed(card)
+        S->>C2: CardsRevealed(lookingPlayerIndex, targetPlayerIndex, cardIndex, cardValue)
     and
-        S->>C3: CardsRevealed(cardWithoutValue)
+        S->>C3: CardsRevealed(lookingPlayerIndex, targetPlayerIndex, cardIndex)
     end
     Note over S: Wait for all acks
     par
@@ -419,7 +419,7 @@ sequenceDiagram
     and
         C1-->>S: Ack
     end
-    S->>C2: BoardUpdated(deckSize, deckCard, discardedValue, actions)
+    S->>C2: BoardUpdated(deckSize, discardedValue, actions)
     C2-->>S: Ack
     C2->>S: PeekOwnCard(cardIndex)
     S->>S: Update state
@@ -447,7 +447,7 @@ sequenceDiagram
 
 ### Phase 5 (finish round)
 
-Round is finished, but the game will continue:
+Round is finished, but the game will continue (assuming it is player 1's turn):
 ```mermaid
 sequenceDiagram
     participant S as Server
