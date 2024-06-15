@@ -54,3 +54,9 @@ Since knowing own or other players' cards can give a significant advantage, it i
 As a ground rule, the server sends to each client only the data that is supposed to be seen by the corresponding player. This prevents cheating using a modified client.
 
 To prevent someone with direct access to the database from seeing or modifying any card values, all sensitive data is encrypted using the secret keys of all players in the game. Since each key is only persisted on the client side, game data cannot be decrypted until all players provide their keys to the server.
+
+### Persistence strategy
+
+The server uses a write-through persistence strategy:
+* Every update of a persistable entity (a game or a player) is propagated to the database.
+* All entities are loaded from the database at the server start-up.
